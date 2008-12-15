@@ -1,11 +1,11 @@
 /* eip_read.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_read.c,v 1.1 2008-10-15 13:48:23 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_read.c,v 1.2 2008-12-15 12:02:52 cjm Exp $
 */
 /**
  * Routines for reading ints,floats,booleans.
  * @author Chris Mottram
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -35,7 +35,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_read.c,v 1.1 2008-10-15 13:48:23 cjm Exp $";
+static char rcsid[] = "$Id: eip_read.c,v 1.2 2008-12-15 12:02:52 cjm Exp $";
 
 /* -------------------------------------------------------------
 ** external functions 
@@ -86,7 +86,7 @@ int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Integer (%s) Started.",tag_name);
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Integer (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -192,7 +192,8 @@ int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Integer : %s Returned value %d.",tag_name,(*value));
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Integer : handle %p : %s Returned value %d.",handle,tag_name,
+		       (*value));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -243,7 +244,7 @@ int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Float (%s) Started.",tag_name);
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Float (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -339,7 +340,7 @@ int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Float : %s Returned value %f.",tag_name,(*value));
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Float : handle %p : %s Returned value %f.",handle,tag_name,(*value));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -390,7 +391,7 @@ int EIP_Read_Boolean(EIP_Handle_T *handle,char *tag_name,int *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Boolean (%s) Started.",tag_name);
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Boolean (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -499,10 +500,14 @@ int EIP_Read_Boolean(EIP_Handle_T *handle,char *tag_name,int *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Boolean : %s Returned value %d.",tag_name,(*value));
+	EIP_Log_Format(EIP_LOG_BIT_READ,"EIP_Read_Boolean : handle %p : %s Returned value %d.",handle,tag_name,
+		       (*value));
 #endif /* LOGGING */
 	return TRUE;
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:23  cjm
+** Initial revision
+**
 */

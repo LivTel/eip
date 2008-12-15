@@ -1,11 +1,11 @@
 /* eip_session.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.1 2008-10-15 13:48:23 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.2 2008-12-15 12:02:54 cjm Exp $
 */
 /**
  * Session handling routine.
  * @author Chris Mottram
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -39,7 +39,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_session.c,v 1.1 2008-10-15 13:48:23 cjm Exp $";
+static char rcsid[] = "$Id: eip_session.c,v 1.2 2008-12-15 12:02:54 cjm Exp $";
 
 /* internal functions */
 static int GetSerial(void);
@@ -73,7 +73,7 @@ int EIP_Session_Handle_Create(EIP_Handle_T **handle)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Create Finished.");
+	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Create Finished with new handle %p.",(*handle));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -95,15 +95,16 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 	int retval,path_size;
 	BYTE path[2];
 
-#if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Open Started.");
-#endif /* LOGGING */
 	if(hostname == NULL)
 	{
 		EIP_Error_Number = 5;
 		sprintf(EIP_Error_String,"EIP_Session_Open: hostname was NULL.");
 		return FALSE;
 	}
+#if LOGGING > 1
+	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Open(hostname=%s,backplane=%d,slot=%d,handle=%p) Started.",
+		       hostname,backplane,slot,handle);
+#endif /* LOGGING */
 	if(handle == NULL)
 	{
 		EIP_Error_Number = 6;
@@ -192,7 +193,7 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 int EIP_Session_Close(EIP_Handle_T *handle)
 {
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Close Started.");
+	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Close(handle=%p) Started.",handle);
 #endif /* LOGGING */
 	/* close connection */
 	if(handle->Connection != NULL)
@@ -204,7 +205,7 @@ int EIP_Session_Close(EIP_Handle_T *handle)
 	CloseSession(handle->Session);
 	handle->Session = NULL;
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Close Finished.");
+	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Close(handle=%p) Finished.",handle);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -216,9 +217,6 @@ int EIP_Session_Close(EIP_Handle_T *handle)
  */
 int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 {
-#if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Destroy Started.");
-#endif /* LOGGING */
 	/* check parameters */
 	if(handle == NULL)
 	{
@@ -226,6 +224,9 @@ int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 		sprintf(EIP_Error_String,"EIP_Session_Handle_Destroy : handle was NULL.");
 		return FALSE;
 	}
+#if LOGGING > 1
+	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Destroy(handle=%p) Started.",(*handle));
+#endif /* LOGGING */
 	if((*handle) == NULL)
 	{
 		EIP_Error_Number = 4;
@@ -254,4 +255,7 @@ static int GetSerial(void)
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:23  cjm
+** Initial revision
+**
 */
