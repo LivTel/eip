@@ -1,0 +1,10 @@
+# $Header: /home/cjm/cvs/eip/Makefile.common,v 1.1 2009-01-07 17:26:32 cjm Exp $
+
+EIP_HOME		=	eip
+EIP_SRC_HOME		= 	$(LT_SRC_HOME)/$(EIP_HOME)
+EIP_BIN_HOME		= 	$(LT_BIN_HOME)/$(EIP_HOME)
+EIP_DOC_HOME		= 	$(LT_DOC_HOME)/$(EIP_HOME)
+EIP_LIBNAME		=	$(EIP_HOME)
+#
+# $Log: not supported by cvs2svn $
+#
