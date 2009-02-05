@@ -1,11 +1,11 @@
 /* eip_write.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_write.c,v 1.2 2008-12-15 12:02:50 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_write.c,v 1.3 2009-02-05 11:36:18 cjm Exp $
 */
 /**
  * Routines for writing ints,floats,booleans.
  * @author Chris Mottram
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -23,9 +23,8 @@
 #include <time.h>
 #include <stdarg.h>
 #include <unistd.h>
-
 #include <tuxeip/TuxEip.h>
-
+#include "log_udp.h"
 #include "eip_address.h"
 #include "eip_general.h"
 #include "eip_read.h"
@@ -37,7 +36,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_write.c,v 1.2 2008-12-15 12:02:50 cjm Exp $";
+static char rcsid[] = "$Id: eip_write.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
 
 /* -------------------------------------------------------------
 ** external functions 
@@ -81,7 +80,7 @@ int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Integer (%p,%s,%d) Started.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer (%p,%s,%d) Started.",handle,tag_name,value);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -122,7 +121,7 @@ int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Integer : handle %p : %s set to %d.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer : handle %p : %s set to %d.",handle,tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -166,7 +165,7 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Float (%p,%s,%f) Started.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Float (%p,%s,%f) Started.",handle,tag_name,value);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -207,7 +206,7 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Float : handle %p : %s set to %f.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Float : handle %p : %s set to %f.",handle,tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -262,7 +261,7 @@ int EIP_Write_Boolean(EIP_Handle_T *handle,char *tag_name,int value)
 		return FALSE;
 	}		
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Boolean (%p,%s,%d) Started.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean (%p,%s,%d) Started.",handle,tag_name,value);
 #endif /* LOGGING */
 	/* decipher the input address into word and bit components */
 	if(!EIP_Address_Parse(tag_name,&memory_address))
@@ -285,13 +284,16 @@ int EIP_Write_Boolean(EIP_Handle_T *handle,char *tag_name,int value)
 	if(!EIP_Write_Integer(handle,word_address_buff,word_value))
 		return FALSE;
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_WRITE,"EIP_Write_Boolean : handle %p : %s set to %d.",handle,tag_name,value);
+	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean : handle %p : %s set to %d.",handle,tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2008/12/15 12:02:50  cjm
+** Added handle logging.
+**
 ** Revision 1.1  2008/10/15 13:48:23  cjm
 ** Initial revision
 **

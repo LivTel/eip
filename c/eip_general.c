@@ -1,11 +1,11 @@
 /* eip_general.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_general.c,v 1.1 2008-10-15 13:48:23 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_general.c,v 1.2 2009-02-05 11:36:18 cjm Exp $
 */
 /**
  * Error and Log handlers.
  * @author Chris Mottram
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -39,8 +39,8 @@
  * <dt>Log_Filter</dt> <dd>Function pointer to the routine that will filter log messages passed to it.
  * 		The funtion will return TRUE if the message should be logged, and FALSE if it shouldn't.</dd>
  * <dt>Log_Filter_Level</dt> <dd>A globally maintained log filter level. 
- * 		This is set using Df1_Set_Log_Filter_Level.
- * 		Df1_Log_Filter_Level_Absolute and Df1_Log_Filter_Level_Bitwise 
+ * 		This is set using EIP_Set_Log_Filter_Level.
+ * 		EIP_Log_Filter_Level_Absolute and EIP_Log_Filter_Level_Bitwise 
  *              test it against message levels to determine whether to log messages.</dd>
  * </dl>
  * @see #EIP_Log
@@ -70,7 +70,7 @@ char EIP_Error_String[EIP_ERROR_LENGTH];
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_general.c,v 1.1 2008-10-15 13:48:23 cjm Exp $";
+static char rcsid[] = "$Id: eip_general.c,v 1.2 2009-02-05 11:36:18 cjm Exp $";
 /**
  * The instance of General_Struct that contains local data for this module.
  * This is statically initialised to the following:
@@ -283,4 +283,7 @@ int EIP_Log_Filter_Level_Bitwise(int level,char *string)
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:23  cjm
+** Initial revision
+**
 */

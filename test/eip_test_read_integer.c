@@ -1,30 +1,31 @@
 /* eip_test_read_integer.c
-** $Header: /home/cjm/cvs/eip/test/eip_test_read_integer.c,v 1.1 2008-10-15 13:48:34 cjm Exp $
+** $Header: /home/cjm/cvs/eip/test/eip_test_read_integer.c,v 1.2 2009-02-05 11:36:45 cjm Exp $
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "log_udp.h"
 #include "eip_general.h"
 #include "eip_session.h"
 #include "eip_read.h"
 /**
  * This program tests reading an integer value from a PLC.
  * @author $Author: cjm $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 /* hash definitions */
 /**
- * Default bit-wise log level.
+ * Default absolute log level.
  */
-#define DEFAULT_LOG_LEVEL       (EIP_LOG_BIT_SESSION|EIP_LOG_BIT_READ)
+#define DEFAULT_LOG_LEVEL       (LOG_VERBOSITY_VERY_VERBOSE)
 
 /* internal variables */
 /**
  * Revision control system identifier.
  */
-static char rcsid[] = "$Id: eip_test_read_integer.c,v 1.1 2008-10-15 13:48:34 cjm Exp $";
+static char rcsid[] = "$Id: eip_test_read_integer.c,v 1.2 2009-02-05 11:36:45 cjm Exp $";
 
 /**
  * The hostname of the PLC.
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
 	fprintf(stdout,"Test Reading Integer values from PLC.\n");
 	/* initialise logging */
 	EIP_Set_Log_Handler_Function(EIP_Log_Handler_Stdout);
-	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Bitwise);
+	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Absolute);
 	EIP_Set_Log_Filter_Level(DEFAULT_LOG_LEVEL);
 	fprintf(stdout,"Parsing Arguments.\n");
 	strcpy(Hostname,"");
@@ -205,4 +206,7 @@ static void Help(void)
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:34  cjm
+** Initial revision
+**
 */

@@ -1,17 +1,18 @@
 /* eip_test_address_parse.c
-** $Header: /home/cjm/cvs/eip/test/eip_test_address_parse.c,v 1.1 2008-10-15 13:48:34 cjm Exp $
+** $Header: /home/cjm/cvs/eip/test/eip_test_address_parse.c,v 1.2 2009-02-05 11:36:45 cjm Exp $
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "log_udp.h"
 #include "eip_address.h"
 #include "eip_general.h"
 
 /**
  * This program tests parsing PLC addresses of the form 'N7:0/1'.
  * @author $Author: cjm $
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 /**
@@ -35,8 +36,8 @@ int main(int argc, char *argv[])
 	}
 	address = argv[1];
 	EIP_Set_Log_Handler_Function(EIP_Log_Handler_Stdout);
-	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Bitwise);
-	EIP_Set_Log_Filter_Level(EIP_LOG_BIT_ADDRESS);
+	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Absolute);
+	EIP_Set_Log_Filter_Level(LOG_VERBOSITY_VERY_VERBOSE);
 	if(!EIP_Address_Parse(address,&plc_memory_address))
 	{
 		EIP_General_Error();
@@ -62,4 +63,7 @@ int main(int argc, char *argv[])
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:34  cjm
+** Initial revision
+**
 */

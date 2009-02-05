@@ -1,11 +1,11 @@
 /* eip_session.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.2 2008-12-15 12:02:54 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.3 2009-02-05 11:36:18 cjm Exp $
 */
 /**
  * Session handling routine.
  * @author Chris Mottram
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -25,7 +25,7 @@
 #include <unistd.h>
 
 #include <tuxeip/TuxEip.h>
-
+#include "log_udp.h"
 #include "eip_general.h"
 #include "eip_session.h"
 #include "eip_session_private.h"
@@ -39,7 +39,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_session.c,v 1.2 2008-12-15 12:02:54 cjm Exp $";
+static char rcsid[] = "$Id: eip_session.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
 
 /* internal functions */
 static int GetSerial(void);
@@ -56,7 +56,7 @@ static int GetSerial(void);
 int EIP_Session_Handle_Create(EIP_Handle_T **handle)
 {
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Create Started.");
+	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Create Started.");
 #endif /* LOGGING */
 	if(handle == NULL)
 	{
@@ -73,7 +73,7 @@ int EIP_Session_Handle_Create(EIP_Handle_T **handle)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Create Finished with new handle %p.",(*handle));
+	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Create Finished with new handle %p.",(*handle));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -102,7 +102,7 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Open(hostname=%s,backplane=%d,slot=%d,handle=%p) Started.",
+	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Open(hostname=%s,backplane=%d,slot=%d,handle=%p) Started.",
 		       hostname,backplane,slot,handle);
 #endif /* LOGGING */
 	if(handle == NULL)
@@ -180,7 +180,7 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Open Finished.");
+	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Open Finished.");
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -193,7 +193,7 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 int EIP_Session_Close(EIP_Handle_T *handle)
 {
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Close(handle=%p) Started.",handle);
+	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Started.",handle);
 #endif /* LOGGING */
 	/* close connection */
 	if(handle->Connection != NULL)
@@ -205,7 +205,7 @@ int EIP_Session_Close(EIP_Handle_T *handle)
 	CloseSession(handle->Session);
 	handle->Session = NULL;
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Close(handle=%p) Finished.",handle);
+	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Finished.",handle);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -225,7 +225,7 @@ int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Destroy(handle=%p) Started.",(*handle));
+	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy(handle=%p) Started.",(*handle));
 #endif /* LOGGING */
 	if((*handle) == NULL)
 	{
@@ -237,7 +237,7 @@ int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 	free((*handle));
 	(*handle) = NULL;
 #if LOGGING > 1
-	EIP_Log(EIP_LOG_BIT_SESSION,"EIP_Session_Handle_Destroy Finished.");
+	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy Finished.");
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -255,6 +255,9 @@ static int GetSerial(void)
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2008/12/15 12:02:54  cjm
+** Added handle logging.
+**
 ** Revision 1.1  2008/10/15 13:48:23  cjm
 ** Initial revision
 **

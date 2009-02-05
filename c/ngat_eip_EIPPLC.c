@@ -1,6 +1,6 @@
 /* ngat_eip_EIPPLC.c
 ** implementation of Java Class ngat.eip.EIPPLC native interfaces.
-** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.1 2008-10-15 13:48:23 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.2 2009-02-05 11:36:18 cjm Exp $
 */
 /**
  * ngat_eip_EIPPLC.c is the 'glue' between libeip, 
@@ -8,7 +8,7 @@
  * a Java Class to drive the server. This file specifically
  * contains all the native C routines corresponding to native methods in Java.
  * @author Chris Mottram LJMU
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes
@@ -57,7 +57,7 @@ struct Handle_Map_Struct
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.1 2008-10-15 13:48:23 cjm Exp $";
+static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.2 2009-02-05 11:36:18 cjm Exp $";
 
 /**
  * Copy of the java virtual machine pointer, used for logging back up to the Java layer from C.
@@ -129,7 +129,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
  * @see #EIPPLC_Log_Handler
  * @see #logger
  * @see #log_method_id
- * @see eip_general.html#EIP_Log_Filter_Level_Bitwise
+ * @see eip_general.html#EIP_Log_Filter_Level_Absolute
  * @see eip_general.html#EIP_Set_Log_Handler_Function
  * @see eip_general.html#EIP_Set_Log_Filter_Function
  */
@@ -156,8 +156,8 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_initialiseLoggerReference(JNIEnv *en
 	}
 	/* Make the C layer log back to the Java logger, using EIPPLC_Log_Handler JNI routine.  */
 	EIP_Set_Log_Handler_Function(EIPPLC_Log_Handler);
-	/* Make the filtering bitwise, as expected by the C layer */
-	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Bitwise);
+	/* Make the filtering absolute, as expected by the C layer */
+	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Absolute);
 }
 
 
@@ -794,5 +794,8 @@ static int EIPPLC_Handle_Map_Find(JNIEnv *env,jobject instance,jobject j_handle,
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:23  cjm
+** Initial revision
+**
 */
 

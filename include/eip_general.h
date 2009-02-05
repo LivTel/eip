@@ -1,5 +1,5 @@
 /* eip_general.h
-** $Header: /home/cjm/cvs/eip/include/eip_general.h,v 1.1 2008-10-15 13:48:28 cjm Exp $
+** $Header: /home/cjm/cvs/eip/include/eip_general.h,v 1.2 2009-02-05 11:36:28 cjm Exp $
 */
 
 #ifndef EIP_GENERAL_H
@@ -23,36 +23,6 @@
  * How long the error string is.
  */
 #define EIP_ERROR_LENGTH (1024)
-
-/* These constants should be the same as those in ngat.net.plc.EIPLibrary.java */
-/**
- * Value to pass into logging calls, used for session software logging.
- * The eip library is allocated bits 16..23.
- * This constant should be the same as that defined in ngat.net.plc.EIPLibrary.java.
- * @see #EIP_Log
- */
-#define EIP_LOG_BIT_SESSION	(1<<16)
-/**
- * Value to pass into logging calls, used for read logging.
- * The eip library is allocated bits 16..23.
- * This constant should be the same as that defined in ngat.net.plc.EIPLibrary.java.
- * @see #EIP_Log
- */
-#define EIP_LOG_BIT_READ	(1<<17)
-/**
- * Value to pass into logging calls, used for read logging.
- * The eip library is allocated bits 16..23.
- * This constant should be the same as that defined in ngat.net.plc.EIPLibrary.java.
- * @see #EIP_Log
- */
-#define EIP_LOG_BIT_WRITE	(1<<18)
-/**
- * Value to pass into logging calls, used for address logging.
- * The eip library is allocated bits 16..23.
- * This constant should be the same as that defined in ngat.net.plc.EIPLibrary.java.
- * @see #EIP_Log
- */
-#define EIP_LOG_BIT_ADDRESS	(1<<19)
 
 /**
  * Macro to check whether the parameter is either TRUE or FALSE.
@@ -80,5 +50,8 @@ extern char EIP_Error_String[];
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:28  cjm
+** Initial revision
+**
 */
 #endif
