@@ -1,4 +1,4 @@
-# $Header: /home/cjm/cvs/eip/c/Makefile,v 1.1 2008-10-15 13:48:32 cjm Exp $
+# $Header: /home/cjm/cvs/eip/c/Makefile,v 1.2 2009-02-05 11:36:32 cjm Exp $
 
 include			../../Makefile.common
 include			../Makefile.common
@@ -25,7 +25,7 @@ MUTEXCFLAGS = -DEIP_MUTEXED=1
 #MUTEXCFLAGS = 
 
 CFLAGS = -g $(CCHECKFLAG) -I$(INCDIR) -I$(JNIINCDIR) -I$(JNIMDINCDIR) -L$(LT_LIB_HOME) \
-	$(MUTEXCFLAGS) $(LOGGINGCFLAGS) $(TUXEIP_CFLAGS)
+	$(MUTEXCFLAGS) $(LOGGINGCFLAGS) $(TUXEIP_CFLAGS) $(LOG_UDP_CFLAGS)
 
 LINTFLAGS = -I$(INCDIR) -I$(JNIINCDIR) -I$(JNIMDINCDIR)
 DOCFLAGS = -static
@@ -95,6 +95,9 @@ backup: tidy
 
 #
 # $Log: not supported by cvs2svn $
+# Revision 1.1  2008/10/15 13:48:32  cjm
+# Initial revision
+#
 #
 
 # DO NOT DELETE

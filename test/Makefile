@@ -1,4 +1,4 @@
-# $Header: /home/cjm/cvs/eip/test/Makefile,v 1.1 2008-10-15 13:48:40 cjm Exp $
+# $Header: /home/cjm/cvs/eip/test/Makefile,v 1.2 2009-02-05 11:36:54 cjm Exp $
 
 include ../../Makefile.common
 include ../Makefile.common
@@ -8,7 +8,7 @@ TESTDIR 	= test
 BINDIR 		= $(EIP_BIN_HOME)/$(TESTDIR)/$(HOSTTYPE)
 DOCSDIR 	= $(EIP_DOC_HOME)/$(TESTDIR)
 
-CFLAGS 		= -g -I$(INCDIR) -I$(JNIINCDIR) -I$(JNIMDINCDIR)
+CFLAGS 		= -g -I$(INCDIR) -I$(JNIINCDIR) -I$(JNIMDINCDIR) $(LOG_UDP_CFLAGS)
 DOCFLAGS 	= -static
 
 SRCS 		= eip_test_read_boolean.c eip_test_read_integer.c eip_test_read_float.c \
