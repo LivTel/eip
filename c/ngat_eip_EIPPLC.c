@@ -1,6 +1,6 @@
 /* ngat_eip_EIPPLC.c
 ** implementation of Java Class ngat.eip.EIPPLC native interfaces.
-** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.3 2011-01-12 14:07:55 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.4 2011-01-12 15:15:56 cjm Exp $
 */
 /**
  * ngat_eip_EIPPLC.c is the 'glue' between libeip, 
@@ -8,7 +8,7 @@
  * a Java Class to drive the server. This file specifically
  * contains all the native C routines corresponding to native methods in Java.
  * @author Chris Mottram LJMU
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes
@@ -57,7 +57,7 @@ struct Handle_Map_Struct
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.3 2011-01-12 14:07:55 cjm Exp $";
+static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.4 2011-01-12 15:15:56 cjm Exp $";
 
 /**
  * Copy of the java virtual machine pointer, used for logging back up to the Java layer from C.
@@ -597,8 +597,8 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Float(JNIEnv *env,jobjec
  * @see eip_session.html#EIP_Handle_T
  * @see eip_write.html#EIP_Write_Integer
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Integer(JNIEnv *env, jobject obj, jobject j_handle, 
-			  jstring class_jstring,jstring source_jstring,jstring plc_address_jstring, jint value)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Integer(JNIEnv *env,jobject obj,jstring class_jstring,
+			  jstring source_jstring,jobject j_handle,jstring plc_address_jstring, jint value)
 {
 	EIP_Handle_T *handle = NULL;
 	const char *class = NULL;
@@ -926,6 +926,9 @@ static int EIPPLC_Handle_Map_Find(JNIEnv *env,jobject instance,jobject j_handle,
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.3  2011/01/12 14:07:55  cjm
+** Added class and source to the logging API.
+**
 ** Revision 1.2  2009/02/05 11:36:18  cjm
 ** Swapped Bitwise for Absolute logging levels.
 **
