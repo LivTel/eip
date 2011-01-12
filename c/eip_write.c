@@ -1,11 +1,11 @@
 /* eip_write.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_write.c,v 1.3 2009-02-05 11:36:18 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_write.c,v 1.4 2011-01-12 14:07:55 cjm Exp $
 */
 /**
  * Routines for writing ints,floats,booleans.
  * @author Chris Mottram
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -36,7 +36,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_write.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
+static char rcsid[] = "$Id: eip_write.c,v 1.4 2011-01-12 14:07:55 cjm Exp $";
 
 /* -------------------------------------------------------------
 ** external functions 
@@ -44,13 +44,15 @@ static char rcsid[] = "$Id: eip_write.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
 /**
  * Write an integer value to the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to write to, of the form 'N7:0'.
  * @param value The integer value to store in PLC memory location contents.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
+int EIP_Write_Integer(char *class,char *source,EIP_Handle_T *handle,char *tag_name,int value)
 {
 	DHP_Header dhp={0,0,0,0};
 	int retval;
@@ -80,7 +82,8 @@ int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer (%p,%s,%d) Started.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer (%p,%s,%d) Started.",handle,
+		       tag_name,value);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -121,7 +124,8 @@ int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer : handle %p : %s set to %d.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Integer : handle %p : %s set to %d.",handle,
+		       tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -129,13 +133,15 @@ int EIP_Write_Integer(EIP_Handle_T *handle,char *tag_name,int value)
 /**
  * Write a float value to the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to write to, of the form 'F8:0'.
  * @param value The float value to store in PLC memory location contents.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
+int EIP_Write_Float(char *class,char *source,EIP_Handle_T *handle,char *tag_name,float value)
 {
 	DHP_Header dhp={0,0,0,0};
 	int retval;
@@ -165,7 +171,7 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Float (%p,%s,%f) Started.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Float (%p,%s,%f) Started.",handle,tag_name,value);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -206,7 +212,8 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Float : handle %p : %s set to %f.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Float : handle %p : %s set to %f.",handle,
+		       tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -214,6 +221,8 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
 /**
  * Write a boolean value to the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to write to, of the form 'N7:0/1'.
  * @param value The boolean value to store in PLC memory location contents, must be TRUE (1) or FALSE (0).
@@ -224,7 +233,7 @@ int EIP_Write_Float(EIP_Handle_T *handle,char *tag_name,float value)
  * @see eip_address.html#EIP_Address_Parse
  * @see eip_address.html#EIP_Address_Create
  */
-int EIP_Write_Boolean(EIP_Handle_T *handle,char *tag_name,int value)
+int EIP_Write_Boolean(char *class,char *source,EIP_Handle_T *handle,char *tag_name,int value)
 {
 	EIP_PLC_Memory_Address_T memory_address;
 	char word_address_buff[32];
@@ -261,15 +270,16 @@ int EIP_Write_Boolean(EIP_Handle_T *handle,char *tag_name,int value)
 		return FALSE;
 	}		
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean (%p,%s,%d) Started.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean (%p,%s,%d) Started.",handle,
+		       tag_name,value);
 #endif /* LOGGING */
 	/* decipher the input address into word and bit components */
-	if(!EIP_Address_Parse(tag_name,&memory_address))
+	if(!EIP_Address_Parse(class,source,tag_name,&memory_address))
 		return FALSE;
-	if(!EIP_Address_Create(memory_address,word_address_buff,FALSE))
+	if(!EIP_Address_Create(class,source,memory_address,word_address_buff,FALSE))
 		return FALSE;
 	/* read the current word */
-	if(!EIP_Read_Integer(handle,word_address_buff,&word_value))
+	if(!EIP_Read_Integer(class,source,handle,word_address_buff,&word_value))
 		return FALSE;
 	/* set/clear the relevant bit in the word */
 	if(value == TRUE)
@@ -281,16 +291,20 @@ int EIP_Write_Boolean(EIP_Handle_T *handle,char *tag_name,int value)
 		word_value &= ~(1<<memory_address.Sub_Element_Number);
 	}
 	/* write the word back to the plc */
-	if(!EIP_Write_Integer(handle,word_address_buff,word_value))
+	if(!EIP_Write_Integer(class,source,handle,word_address_buff,word_value))
 		return FALSE;
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean : handle %p : %s set to %d.",handle,tag_name,value);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Write_Boolean : handle %p : %s set to %d.",handle,
+		       tag_name,value);
 #endif /* LOGGING */
 	return TRUE;
 }
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.3  2009/02/05 11:36:18  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.2  2008/12/15 12:02:50  cjm
 ** Added handle logging.
 **

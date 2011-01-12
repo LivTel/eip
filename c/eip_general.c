@@ -1,11 +1,11 @@
 /* eip_general.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_general.c,v 1.2 2009-02-05 11:36:18 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_general.c,v 1.3 2011-01-12 14:07:55 cjm Exp $
 */
 /**
  * Error and Log handlers.
  * @author Chris Mottram
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -50,8 +50,8 @@
  */
 struct General_Struct
 {
-	void (*Log_Handler)(int level,char *string);
-	int (*Log_Filter)(int level,char *string);
+	void (*Log_Handler)(char *class,char *source,int level,char *string);
+	int (*Log_Filter)(char *class,char *source,int level,char *string);
 	int Log_Filter_Level;
 };
 
@@ -70,7 +70,7 @@ char EIP_Error_String[EIP_ERROR_LENGTH];
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_general.c,v 1.2 2009-02-05 11:36:18 cjm Exp $";
+static char rcsid[] = "$Id: eip_general.c,v 1.3 2011-01-12 14:07:55 cjm Exp $";
 /**
  * The instance of General_Struct that contains local data for this module.
  * This is statically initialised to the following:
@@ -164,6 +164,8 @@ void EIP_Get_Current_Time_String(char *time_string,int string_length)
  * Routine to log a message to a defined logging mechanism. This routine has an arbitary number of arguments,
  * and uses vsprintf to format them i.e. like fprintf. 
  * EIP_Log is then called to handle the log message.
+ * @param class The class that produced this log message.
+ * @param source The source that produced this log message.
  * @param level An integer, used to decide whether this particular message has been selected for
  * 	logging or not.
  * @param format A string, with formatting statements the same as fprintf would use to determine the type
@@ -171,7 +173,7 @@ void EIP_Get_Current_Time_String(char *time_string,int string_length)
  * @see #EIP_Log
  * @see #LOG_BUFF_LENGTH
  */
-void EIP_Log_Format(int level,char *format,...)
+void EIP_Log_Format(char *class,char *source,int level,char *format,...)
 {
 	char buff[LOG_BUFF_LENGTH];
 	va_list ap;
@@ -181,19 +183,21 @@ void EIP_Log_Format(int level,char *format,...)
 	vsprintf(buff,format,ap);
 	va_end(ap);
 /* call the log routine to log the results */
-	EIP_Log(level,buff);
+	EIP_Log(class,source,level,buff);
 }
 
 /**
  * Routine to log a message to a defined logging mechanism. If the string or General_Data.Log_Handler are NULL
  * the routine does not log the message. If the General_Data.Log_Filter function pointer is non-NULL, the
  * message is passed to it to determoine whether to log the message.
+ * @param class The class that produced this log message.
+ * @param source The source that produced this log message.
  * @param level An integer, used to decide whether this particular message has been selected for
  * 	logging or not.
  * @param string The message to log.
  * @see #General_Data
  */
-void EIP_Log(int level,char *string)
+void EIP_Log(char *class,char *source,int level,char *string)
 {
 /* If the string is NULL, don't log. */
 	if(string == NULL)
@@ -204,11 +208,11 @@ void EIP_Log(int level,char *string)
 /* If there's a log filter, check it returns TRUE for this message */
 	if(General_Data.Log_Filter != NULL)
 	{
-		if(General_Data.Log_Filter(level,string) == FALSE)
+		if(General_Data.Log_Filter(class,source,level,string) == FALSE)
 			return;
 	}
 /* We can log the message */
-	(*General_Data.Log_Handler)(level,string);
+	(*General_Data.Log_Handler)(class,source,level,string);
 }
 
 /**
@@ -217,7 +221,7 @@ void EIP_Log(int level,char *string)
  * @see #General_Data
  * @see #EIP_Log
  */
-void EIP_Set_Log_Handler_Function(void (*log_fn)(int level,char *string))
+void EIP_Set_Log_Handler_Function(void (*log_fn)(char *class,char *source,int level,char *string))
 {
 	General_Data.Log_Handler = log_fn;
 }
@@ -228,7 +232,7 @@ void EIP_Set_Log_Handler_Function(void (*log_fn)(int level,char *string))
  * @see #General_Data
  * @see #EIP_Log
  */
-void EIP_Set_Log_Filter_Function(int (*filter_fn)(int level,char *string))
+void EIP_Set_Log_Filter_Function(int (*filter_fn)(char *class,char *source,int level,char *string))
 {
 	General_Data.Log_Filter = filter_fn;
 }
@@ -236,14 +240,16 @@ void EIP_Set_Log_Filter_Function(int (*filter_fn)(int level,char *string))
 /**
  * A log handler to be used for the General_Data.Log_Handler function.
  * Just prints the message to stdout, terminated by a newline.
+ * @param class The class that produced this log message.
+ * @param source The source that produced this log message.
  * @param level The log level for this message.
  * @param string The log message to be logged. 
  */
-void EIP_Log_Handler_Stdout(int level,char *string)
+void EIP_Log_Handler_Stdout(char *class,char *source,int level,char *string)
 {
 	if(string == NULL)
 		return;
-	fprintf(stdout,"%s\n",string);
+	fprintf(stdout,"%s : %s : %s\n",class,source,string);
 }
 
 /**
@@ -257,32 +263,39 @@ void EIP_Set_Log_Filter_Level(int level)
 
 /**
  * A log message filter routine, to be used for the General_Data.Log_Filter function pointer.
+ * @param class The class that produced this log message.
+ * @param source The source that produced this log message.
  * @param level The log level of the message to be tested.
  * @param string The log message to be logged, not used in this filter. 
  * @return The routine returns TRUE if the level is less than or equal to the General_Data.Log_Filter_Level,
  * 	otherwise it returns FALSE.
  * @see #General_Data
  */
-int EIP_Log_Filter_Level_Absolute(int level,char *string)
+int EIP_Log_Filter_Level_Absolute(char *class,char *source,int level,char *string)
 {
 	return (level <= General_Data.Log_Filter_Level);
 }
 
 /**
  * A log message filter routine, to be used for the General_Data.Log_Filter function pointer.
+ * @param class The class that produced this log message.
+ * @param source The source that produced this log message.
  * @param level The log level of the message to be tested.
  * @param string The log message to be logged, not used in this filter. 
  * @return The routine returns TRUE if the level has bits set that are also set in the 
  * 	General_Data.Log_Filter_Level, otherwise it returns FALSE.
  * @see #General_Data
  */
-int EIP_Log_Filter_Level_Bitwise(int level,char *string)
+int EIP_Log_Filter_Level_Bitwise(char *class,char *source,int level,char *string)
 {
 	return ((level & General_Data.Log_Filter_Level) > 0);
 }
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2009/02/05 11:36:18  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.1  2008/10/15 13:48:23  cjm
 ** Initial revision
 **

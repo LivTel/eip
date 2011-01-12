@@ -1,6 +1,6 @@
 /* eip_session.h
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/include/eip_session.h,v 1.1 2008-10-15 13:48:28 cjm Exp $
+** $Header: /home/cjm/cvs/eip/include/eip_session.h,v 1.2 2011-01-12 14:11:37 cjm Exp $
 */
 #ifndef EIP_SESSION_H
 #define EIP_SESSION_H
@@ -22,13 +22,16 @@ enum EIP_SESSION_PLC_TYPE
 	PLC_TYPE_NONE,PLC_TYPE_MICROLOGIX1100
 };
 
-extern int EIP_Session_Handle_Create(EIP_Handle_T **handle);
-extern int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_TYPE plc_type,
-			    EIP_Handle_T *handle);
-extern int EIP_Session_Close(EIP_Handle_T *handle);
-extern int EIP_Session_Handle_Destroy(EIP_Handle_T **handle);
+extern int EIP_Session_Handle_Create(char *class,char *source,EIP_Handle_T **handle);
+extern int EIP_Session_Open(char *class,char *source,char *hostname,int backplane,int slot,
+			    enum EIP_SESSION_PLC_TYPE plc_type,EIP_Handle_T *handle);
+extern int EIP_Session_Close(char *class,char *source,EIP_Handle_T *handle);
+extern int EIP_Session_Handle_Destroy(char *class,char *source,EIP_Handle_T **handle);
 
 #endif
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:28  cjm
+** Initial revision
+**
 */

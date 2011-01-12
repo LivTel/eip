@@ -1,11 +1,11 @@
 /* eip_read.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_read.c,v 1.3 2009-02-05 11:36:18 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_read.c,v 1.4 2011-01-12 14:07:55 cjm Exp $
 */
 /**
  * Routines for reading ints,floats,booleans.
  * @author Chris Mottram
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -34,7 +34,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_read.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
+static char rcsid[] = "$Id: eip_read.c,v 1.4 2011-01-12 14:07:55 cjm Exp $";
 
 /* -------------------------------------------------------------
 ** external functions 
@@ -42,13 +42,15 @@ static char rcsid[] = "$Id: eip_read.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
 /**
  * Read an integer value from the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to read, of the form 'N7:0'.
  * @param value The address of an integer to store the PLC memory location contents.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
+int EIP_Read_Integer(char *class,char *source,EIP_Handle_T *handle,char *tag_name,int *value)
 {
 	DHP_Header dhp={0,0,0,0};
 	PLC_Read *plc_data;
@@ -85,7 +87,7 @@ int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Integer (%p,%s) Started.",handle,tag_name);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Integer (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -191,8 +193,8 @@ int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Integer : handle %p : %s Returned value %d.",handle,tag_name,
-		       (*value));
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Integer : handle %p : %s Returned value %d.",
+		       handle,tag_name,(*value));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -200,13 +202,15 @@ int EIP_Read_Integer(EIP_Handle_T *handle,char *tag_name,int *value)
 /**
  * Read an float value from the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to read, of the form 'F8:0'.
  * @param value The address of a float to store the PLC memory location contents.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
+int EIP_Read_Float(char *class,char *source,EIP_Handle_T *handle,char *tag_name,float *value)
 {
 	DHP_Header dhp={0,0,0,0};
 	PLC_Read *plc_data;
@@ -243,7 +247,7 @@ int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Float (%p,%s) Started.",handle,tag_name);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Float (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -339,7 +343,8 @@ int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Float : handle %p : %s Returned value %f.",handle,tag_name,(*value));
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Float : handle %p : %s Returned value %f.",handle,
+		       tag_name,(*value));
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -347,13 +352,15 @@ int EIP_Read_Float(EIP_Handle_T *handle,char *tag_name,float *value)
 /**
  * Read an boolean value from the PLC. A session must have previously been opened using
  * EIP_Session_Handle_Create / EIP_Session_Open.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The handle to communicate over.
  * @param tag_name The memory location of the tag to read, of the form 'N7:0/1'.
  * @param value The address of an boolean to store the PLC memory location contents.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Read_Boolean(EIP_Handle_T *handle,char *tag_name,int *value)
+int EIP_Read_Boolean(char *class,char *source,EIP_Handle_T *handle,char *tag_name,int *value)
 {
 	DHP_Header dhp={0,0,0,0};
 	PLC_Read *plc_data;
@@ -390,7 +397,7 @@ int EIP_Read_Boolean(EIP_Handle_T *handle,char *tag_name,int *value)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Boolean (%p,%s) Started.",handle,tag_name);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Boolean (%p,%s) Started.",handle,tag_name);
 #endif /* LOGGING */
 	switch(handle->Plc.PlcType)
 	{
@@ -499,13 +506,16 @@ int EIP_Read_Boolean(EIP_Handle_T *handle,char *tag_name,int *value)
 			return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERBOSE,"EIP_Read_Boolean : handle %p : %s Returned value %d.",handle,tag_name,
-		       (*value));
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERBOSE,"EIP_Read_Boolean : handle %p : %s Returned value %d.",
+		       handle,tag_name,(*value));
 #endif /* LOGGING */
 	return TRUE;
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.3  2009/02/05 11:36:18  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.2  2008/12/15 12:02:52  cjm
 ** Added handle logging.
 **

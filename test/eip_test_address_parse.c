@@ -1,5 +1,5 @@
 /* eip_test_address_parse.c
-** $Header: /home/cjm/cvs/eip/test/eip_test_address_parse.c,v 1.2 2009-02-05 11:36:45 cjm Exp $
+** $Header: /home/cjm/cvs/eip/test/eip_test_address_parse.c,v 1.3 2011-01-12 14:12:26 cjm Exp $
 */
 
 #include <stdio.h>
@@ -12,7 +12,7 @@
 /**
  * This program tests parsing PLC addresses of the form 'N7:0/1'.
  * @author $Author: cjm $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 /**
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 	EIP_Set_Log_Handler_Function(EIP_Log_Handler_Stdout);
 	EIP_Set_Log_Filter_Function(EIP_Log_Filter_Level_Absolute);
 	EIP_Set_Log_Filter_Level(LOG_VERBOSITY_VERY_VERBOSE);
-	if(!EIP_Address_Parse(address,&plc_memory_address))
+	if(!EIP_Address_Parse("eip_test_address_parse",NULL,address,&plc_memory_address))
 	{
 		EIP_General_Error();
 		return 1;
@@ -47,13 +47,13 @@ int main(int argc, char *argv[])
 		"File_Type = %#x, Element_Number = %d,Sub_Element_Number = %d.\n",plc_memory_address.Size,
 		plc_memory_address.File_Letter,plc_memory_address.File_Number,plc_memory_address.File_Type,
 		plc_memory_address.Element_Number,plc_memory_address.Sub_Element_Number);
-	if(!EIP_Address_Create(plc_memory_address,buff,TRUE))
+	if(!EIP_Address_Create("eip_test_address_parse",NULL,plc_memory_address,buff,TRUE))
 	{
 		EIP_General_Error();
 		return 2;
 	}
 	fprintf(stdout,"EIP_Address_Create(include_sub_element=TRUE) returned '%s'.\n",buff);
-	if(!EIP_Address_Create(plc_memory_address,buff,FALSE))
+	if(!EIP_Address_Create("eip_test_address_parse",NULL,plc_memory_address,buff,FALSE))
 	{
 		EIP_General_Error();
 		return 2;
@@ -63,6 +63,9 @@ int main(int argc, char *argv[])
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2009/02/05 11:36:45  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.1  2008/10/15 13:48:34  cjm
 ** Initial revision
 **

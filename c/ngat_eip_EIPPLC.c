@@ -1,6 +1,6 @@
 /* ngat_eip_EIPPLC.c
 ** implementation of Java Class ngat.eip.EIPPLC native interfaces.
-** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.2 2009-02-05 11:36:18 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/ngat_eip_EIPPLC.c,v 1.3 2011-01-12 14:07:55 cjm Exp $
 */
 /**
  * ngat_eip_EIPPLC.c is the 'glue' between libeip, 
@@ -8,7 +8,7 @@
  * a Java Class to drive the server. This file specifically
  * contains all the native C routines corresponding to native methods in Java.
  * @author Chris Mottram LJMU
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes
@@ -57,7 +57,7 @@ struct Handle_Map_Struct
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.2 2009-02-05 11:36:18 cjm Exp $";
+static char rcsid[] = "$Id: ngat_eip_EIPPLC.c,v 1.3 2011-01-12 14:07:55 cjm Exp $";
 
 /**
  * Copy of the java virtual machine pointer, used for logging back up to the Java layer from C.
@@ -69,7 +69,8 @@ static JavaVM *java_vm = NULL;
  */
 static jobject logger = NULL;
 /**
- * Cached reference to the "ngat.util.logging.Logger" class's log(int level,String message) method.
+ * Cached reference to the "ngat.util.logging.Logger" class's 
+ * log(int level,String clazz,String source,String message) method.
  * Used to log C layer log messages, in conjunction with the logger's object reference logger.
  * @see #logger
  */
@@ -92,7 +93,7 @@ static struct Handle_Map_Struct Handle_Map_List[HANDLE_MAP_SIZE] =
 /* internal routines */
 static void EIPPLC_Throw_Exception(JNIEnv *env,jobject obj,char *function_name);
 static void EIPPLC_Throw_Exception_String(JNIEnv *env,jobject obj,char *function_name,char *error_string);
-static void EIPPLC_Log_Handler(int level,char *string);
+static void EIPPLC_Log_Handler(char *class,char *source,int level,char *string);
 static int EIPPLC_Handle_Map_Add(JNIEnv *env,jobject instance,jobject j_handle,EIP_Handle_T* c_handle);
 static int EIPPLC_Handle_Map_Delete(JNIEnv *env,jobject instance,jobject j_handle);
 static int EIPPLC_Handle_Map_Find(JNIEnv *env,jobject instance,jobject j_handle,EIP_Handle_T** c_handle);
@@ -146,8 +147,9 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_initialiseLoggerReference(JNIEnv *en
 	if(cls == NULL)
 		return;
 /* get relevant method id to call */
-/* log(int level,java/lang/String message) */
-	log_method_id = (*env)->GetMethodID(env,cls,"log","(ILjava/lang/String;)V");
+/* log(int level,java/lang/String clazz,java/lang/String source,java/lang/String message) */
+	log_method_id = (*env)->GetMethodID(env,cls,"log",
+					    "(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
 	if(log_method_id == NULL)
 	{
 		/* One of the following exceptions has been thrown:
@@ -194,30 +196,41 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Set_1Log_1Filter_1Level(JNIEnv 
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Read_Boolean<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;)Z<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;)Z<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_read.html#EIP_Read_Boolean
  */
-JNIEXPORT jboolean JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Boolean(JNIEnv *env, jobject obj, jobject j_handle,
+JNIEXPORT jboolean JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Boolean(JNIEnv *env,jobject obj,jstring class_jstring,
+								   jstring source_jstring, jobject j_handle,
 								   jstring plc_address_jstring)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval,value;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return (jboolean)FALSE; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Read_Boolean(handle,(char *)plc_address_c,&value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
+	retval = EIP_Read_Boolean((char*)class,(char*)source,handle,(char *)plc_address_c,&value);
+	/* If we created the C strings we need to free the memory it uses */
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	/* if an error occured throw an exception. */
 	if(retval == FALSE)
 		EIPPLC_Throw_Exception(env,obj,"EIP_Read_Boolean");
@@ -227,16 +240,19 @@ JNIEXPORT jboolean JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Boolean(JNIEnv *env, 
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Read_Float<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;)F<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;)F<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_read.html#EIP_Read_Float
  */
-JNIEXPORT jfloat JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Float(JNIEnv *env, jobject obj, jobject j_handle, 
+JNIEXPORT jfloat JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Float(JNIEnv *env,jobject obj,jstring class_jstring,
+							       jstring source_jstring,jobject j_handle, 
 							       jstring plc_address_jstring)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval;
 	float value;
@@ -244,12 +260,20 @@ JNIEXPORT jfloat JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Float(JNIEnv *env, jobj
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return (jfloat)FALSE; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Read_Float(handle,(char *)plc_address_c,&value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	retval = EIP_Read_Float((char*)class,(char*)source,handle,(char *)plc_address_c,&value);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
 	/* if an error occured throw an exception. */
@@ -261,28 +285,39 @@ JNIEXPORT jfloat JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Float(JNIEnv *env, jobj
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Read_Integer<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;)I<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;)I<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_read.html#EIP_Read_Integer
  */
-JNIEXPORT jint JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Integer(JNIEnv *env, jobject obj, jobject j_handle, 
+JNIEXPORT jint JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Integer(JNIEnv *env,jobject obj,jstring class_jstring,
+							       jstring source_jstring,jobject j_handle, 
 							       jstring plc_address_jstring)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval,value;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return (jint)FALSE; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Read_Integer(handle,(char *)plc_address_c,&value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	retval = EIP_Read_Integer((char*)class,(char*)source,handle,(char *)plc_address_c,&value);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
 	/* if an error occured throw an exception. */
@@ -294,17 +329,33 @@ JNIEXPORT jint JNICALL Java_ngat_eip_EIPPLC_EIP_1Read_1Integer(JNIEnv *env, jobj
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Session_Handle_Create<br>
- * Signature: (Lngat/eip/EIPHandle;)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Add
  * @see eip_session.html#EIP_Session_Handle_Create
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Create(JNIEnv *env, jobject obj, jobject j_handle)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Create(JNIEnv *env,jobject obj,
+									 jstring class_jstring,
+									 jstring source_jstring,jobject j_handle)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	int retval;
 
-	retval = EIP_Session_Handle_Create(&handle);
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
+	/* create session handle */
+	retval = EIP_Session_Handle_Create((char*)class,(char*)source,&handle);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	/* if an error occured throw an exception. */
 	if(retval == FALSE)
 	{
@@ -323,27 +374,38 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Create(JNIEnv 
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Session_Handle_Open<br>
- * Signature: (Ljava/lang/String;IIILngat/eip/EIPHandle;)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIILngat/eip/EIPHandle;)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Session_Open
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Open(JNIEnv *env, jobject obj, 
-		  jstring hostname_jstring, jint backplane, jint slot, jint plc_type, jobject j_handle)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Open(JNIEnv *env,jobject obj,jstring class_jstring,
+   jstring source_jstring,jstring hostname_jstring, jint backplane, jint slot, jint plc_type, jobject j_handle)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *hostname_cstring = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the hostname from a java string to a c null terminated string
-	** If the java String is null the hostname_cstring should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(hostname_jstring != NULL)
 		hostname_cstring = (*env)->GetStringUTFChars(env,hostname_jstring,0);
-	retval = EIP_Session_Open((char*)hostname_cstring,(int)backplane,(int)slot,(int)plc_type,handle);
-	/* If we created the hostname_cstring string we need to free the memory it uses */
+	retval = EIP_Session_Open((char*)class,(char*)source,(char*)hostname_cstring,(int)backplane,(int)slot,
+				  (int)plc_type,handle);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(hostname_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,hostname_jstring,hostname_cstring);
 	/* if an error occured throw an exception. */
@@ -357,20 +419,35 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Open(JNIEnv *e
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Session_Handle_Close<br>
- * Signature: (Lngat/eip/EIPHandle;)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Session_Close
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Close(JNIEnv *env, jobject obj, jobject j_handle)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Close(JNIEnv *env,jobject obj,jstring class_jstring,
+									jstring source_jstring,jobject j_handle)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	retval = EIP_Session_Close(handle);
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
+	/* close session handle */
+	retval = EIP_Session_Close((char*)class,(char*)source,handle);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	/* if an error occured throw an exception. */
 	if(retval == FALSE)
 	{
@@ -382,21 +459,36 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Close(JNIEnv *
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Session_Handle_Destroy<br>
- * Signature: (Lngat/eip/EIPHandle;)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see #EIPPLC_Handle_Map_Delete
  * @see eip_session.html#EIP_Session_Destroy
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Destroy(JNIEnv *env, jobject obj, jobject j_handle)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Destroy(JNIEnv *env,jobject obj,
+						   jstring class_jstring,jstring source_jstring,jobject j_handle)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	retval = EIP_Session_Handle_Destroy(&handle);
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
+	/* destroy session handle */
+	retval = EIP_Session_Handle_Destroy((char*)class,(char*)source,&handle);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	/* if an error occured throw an exception. */
 	if(retval == FALSE)
 	{
@@ -415,28 +507,38 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Session_1Handle_1Destroy(JNIEnv
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Write_Boolean<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;Z)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;Z)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_write.html#EIP_Write_Boolean
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Boolean(JNIEnv *env, jobject obj, jobject j_handle, 
-								jstring plc_address_jstring, jboolean value)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Boolean(JNIEnv *env,jobject obj,
+  jstring class_jstring,jstring source_jstring,jobject j_handle, jstring plc_address_jstring, jboolean value)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Write_Boolean(handle,(char *)plc_address_c,(int)value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	retval = EIP_Write_Boolean((char*)class,(char*)source,handle,(char *)plc_address_c,(int)value);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
 	/* if an error occured throw an exception. */
@@ -447,28 +549,38 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Boolean(JNIEnv *env, job
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Write_Float<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;F)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;F)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_write.html#EIP_Write_Float
  */
-JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Float(JNIEnv *env, jobject obj, jobject j_handle,
-							      jstring plc_address_jstring, jfloat value)
+JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Float(JNIEnv *env,jobject obj, 
+     jstring class_jstring,jstring source_jstring,jobject j_handle,jstring plc_address_jstring, jfloat value)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Write_Float(handle,(char *)plc_address_c,(float)value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	retval = EIP_Write_Float((char*)class,(char*)source,handle,(char *)plc_address_c,(float)value);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
 	/* if an error occured throw an exception. */
@@ -479,28 +591,38 @@ JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Float(JNIEnv *env, jobje
 /**
  * Class:     ngat_eip_EIPPLC<br>
  * Method:    EIP_Write_Integer<br>
- * Signature: (Lngat/eip/EIPHandle;Ljava/lang/String;I)V<br>
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Lngat/eip/EIPHandle;Ljava/lang/String;I)V<br>
  * @see #EIPPLC_Throw_Exception
  * @see #EIPPLC_Handle_Map_Find
  * @see eip_session.html#EIP_Handle_T
  * @see eip_write.html#EIP_Write_Integer
  */
 JNIEXPORT void JNICALL Java_ngat_eip_EIPPLC_EIP_1Write_1Integer(JNIEnv *env, jobject obj, jobject j_handle, 
-								jstring plc_address_jstring, jint value)
+			  jstring class_jstring,jstring source_jstring,jstring plc_address_jstring, jint value)
 {
 	EIP_Handle_T *handle = NULL;
+	const char *class = NULL;
+	const char *source = NULL;
 	const char *plc_address_c = NULL;
 	int retval;
 
 	/* get interface handle from EIPHandle j_handle instance map */
 	if(!EIPPLC_Handle_Map_Find(env,obj,j_handle,&handle))
 		return; /* EIPPLC_Handle_Map_Find throws an exception on failure */
-	/* Get the PLC address from a java string to a c null terminated string
-	** If the java String is null the plc_address_c should be null as well */
+	/* Change the java strings to a c null terminated string
+	** If the java String is null the C string should be null as well */
+	if(class_jstring != NULL)
+		class = (*env)->GetStringUTFChars(env,class_jstring,0);
+	if(source_jstring != NULL)
+		source = (*env)->GetStringUTFChars(env,source_jstring,0);
 	if(plc_address_jstring != NULL)
 		plc_address_c = (*env)->GetStringUTFChars(env,plc_address_jstring,0);
-	retval = EIP_Write_Integer(handle,(char *)plc_address_c,(int)value);
-	/* If we created the plc_address_c string we need to free the memory it uses */
+	retval = EIP_Write_Integer((char*)class,(char*)source,handle,(char *)plc_address_c,(int)value);
+	/* If we created the C strings we need to free the memory it uses */
+	if(class_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,class_jstring,class);
+	if(source_jstring != NULL)
+		(*env)->ReleaseStringUTFChars(env,source_jstring,source);
 	if(plc_address_jstring != NULL)
 		(*env)->ReleaseStringUTFChars(env,plc_address_jstring,plc_address_c);
 	/* if an error occured throw an exception. */
@@ -593,7 +715,7 @@ static void EIPPLC_Throw_Exception_String(JNIEnv *env,jobject obj,char *function
 /**
  * libeip Log Handler for the Java layer interface. 
  * This calls the ngat.eip.EIPPLC logger's 
- * log(int level,String message) method with the parameters supplied to this routine.
+ * log(int level,String clazz,String source,String message) method with the parameters supplied to this routine.
  * If the logger instance is NULL, or the log_method_id is NULL the call is not made.
  * Otherwise, A java.lang.String instance is constructed from the string parameter,
  * and the JNI CallVoidMethod routine called to call log().
@@ -603,10 +725,12 @@ static void EIPPLC_Throw_Exception_String(JNIEnv *env,jobject obj,char *function
  * @see #logger
  * @see #log_method_id
  */
-static void EIPPLC_Log_Handler(int level,char *string)
+static void EIPPLC_Log_Handler(char *class,char *source,int level,char *string)
 {
 	JNIEnv *env = NULL;
 	jstring java_string = NULL;
+	jstring java_class = NULL;
+	jstring java_source = NULL;
 
 	if(logger == NULL)
 	{
@@ -637,8 +761,16 @@ static void EIPPLC_Log_Handler(int level,char *string)
 	}
 /* convert C to Java String */
 	java_string = (*env)->NewStringUTF(env,string);
+	if(class != NULL)
+		java_class = (*env)->NewStringUTF(env,class);
+	else
+		java_class = (*env)->NewStringUTF(env,"-");
+	if(source != NULL)
+		java_source = (*env)->NewStringUTF(env,source);
+	else
+		java_source = (*env)->NewStringUTF(env,"-");
 /* call log method on logger instance */
-	(*env)->CallVoidMethod(env,logger,log_method_id,(jint)level,java_string);
+	(*env)->CallVoidMethod(env,logger,log_method_id,(jint)level,java_class,java_source,java_string);
 }
 
 /**
@@ -794,6 +926,9 @@ static int EIPPLC_Handle_Map_Find(JNIEnv *env,jobject instance,jobject j_handle,
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2009/02/05 11:36:18  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.1  2008/10/15 13:48:23  cjm
 ** Initial revision
 **

@@ -1,11 +1,11 @@
 /* eip_session.c
 ** Ethernet over IP (CIP) PLC communication library.
-** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.3 2009-02-05 11:36:18 cjm Exp $
+** $Header: /home/cjm/cvs/eip/c/eip_session.c,v 1.4 2011-01-12 14:07:55 cjm Exp $
 */
 /**
  * Session handling routine.
  * @author Chris Mottram
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 /**
  * This hash define is needed before including source files give us POSIX.4/IEEE1003.1b-1993 prototypes.
@@ -39,7 +39,7 @@
 /**
  * Revision Control System identifier.
  */
-static char rcsid[] = "$Id: eip_session.c,v 1.3 2009-02-05 11:36:18 cjm Exp $";
+static char rcsid[] = "$Id: eip_session.c,v 1.4 2011-01-12 14:07:55 cjm Exp $";
 
 /* internal functions */
 static int GetSerial(void);
@@ -49,14 +49,16 @@ static int GetSerial(void);
 ** ------------------------------------------------------------- */
 /**
  * Routine to allocate memeory for the interface handle.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param handle The address of a pointer to allocate the handle.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Session_Handle_Create(EIP_Handle_T **handle)
+int EIP_Session_Handle_Create(char *class,char *source,EIP_Handle_T **handle)
 {
 #if LOGGING > 1
-	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Create Started.");
+	EIP_Log(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Create Started.");
 #endif /* LOGGING */
 	if(handle == NULL)
 	{
@@ -73,13 +75,16 @@ int EIP_Session_Handle_Create(EIP_Handle_T **handle)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Create Finished with new handle %p.",(*handle));
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERY_VERBOSE,
+		       "EIP_Session_Handle_Create Finished with new handle %p.",(*handle));
 #endif /* LOGGING */
 	return TRUE;
 }
 
 /**
  * Routine to open a session to a Micrologix 1100 PLC.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @param hostname The IP address of the PLC.
  * @param backplane The backplane of the PLC. 1 for Micrologix1100.
  * @param slot The slot containing the PLC. 1 for Micrologix1100.
@@ -90,7 +95,8 @@ int EIP_Session_Handle_Create(EIP_Handle_T **handle)
  * @see #EIP_SESSION_PLC_TYPE
  * @see #MAX_SAMPLE
  */
-int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_TYPE plc_type,EIP_Handle_T *handle)
+int EIP_Session_Open(char *class,char *source,char *hostname,int backplane,int slot,
+		     enum EIP_SESSION_PLC_TYPE plc_type,EIP_Handle_T *handle)
 {
 	int retval,path_size;
 	BYTE path[2];
@@ -102,7 +108,8 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Open(hostname=%s,backplane=%d,slot=%d,handle=%p) Started.",
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERY_VERBOSE,
+		       "EIP_Session_Open(hostname=%s,backplane=%d,slot=%d,handle=%p) Started.",
 		       hostname,backplane,slot,handle);
 #endif /* LOGGING */
 	if(handle == NULL)
@@ -180,20 +187,22 @@ int EIP_Session_Open(char *hostname,int backplane,int slot,enum EIP_SESSION_PLC_
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Open Finished.");
+	EIP_Log(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Open Finished.");
 #endif /* LOGGING */
 	return TRUE;
 }
 
 /**
  * Close a previously opened session.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Session_Close(EIP_Handle_T *handle)
+int EIP_Session_Close(char *class,char *source,EIP_Handle_T *handle)
 {
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Started.",handle);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Started.",handle);
 #endif /* LOGGING */
 	/* close connection */
 	if(handle->Connection != NULL)
@@ -205,17 +214,19 @@ int EIP_Session_Close(EIP_Handle_T *handle)
 	CloseSession(handle->Session);
 	handle->Session = NULL;
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Finished.",handle);
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Close(handle=%p) Finished.",handle);
 #endif /* LOGGING */
 	return TRUE;
 }
 
 /**
  * Routine to destroy the specified handle.
+ * @param class The class parameter for logging.
+ * @param source The source parameter for logging.
  * @return The routine returns TRUE on success and FALSE on failure.
  * @see #EIP_Handle_T
  */
-int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
+int EIP_Session_Handle_Destroy(char *class,char *source,EIP_Handle_T **handle)
 {
 	/* check parameters */
 	if(handle == NULL)
@@ -225,7 +236,8 @@ int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 		return FALSE;
 	}
 #if LOGGING > 1
-	EIP_Log_Format(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy(handle=%p) Started.",(*handle));
+	EIP_Log_Format(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy(handle=%p) Started.",
+		       (*handle));
 #endif /* LOGGING */
 	if((*handle) == NULL)
 	{
@@ -237,7 +249,7 @@ int EIP_Session_Handle_Destroy(EIP_Handle_T **handle)
 	free((*handle));
 	(*handle) = NULL;
 #if LOGGING > 1
-	EIP_Log(LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy Finished.");
+	EIP_Log(class,source,LOG_VERBOSITY_VERY_VERBOSE,"EIP_Session_Handle_Destroy Finished.");
 #endif /* LOGGING */
 	return TRUE;
 }
@@ -255,6 +267,9 @@ static int GetSerial(void)
 }
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.3  2009/02/05 11:36:18  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.2  2008/12/15 12:02:54  cjm
 ** Added handle logging.
 **

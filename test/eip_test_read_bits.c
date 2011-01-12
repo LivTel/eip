@@ -1,5 +1,5 @@
 /* eip_test_read_bits.c
-** $Header: /home/cjm/cvs/eip/test/eip_test_read_bits.c,v 1.2 2009-02-05 11:36:45 cjm Exp $
+** $Header: /home/cjm/cvs/eip/test/eip_test_read_bits.c,v 1.3 2011-01-12 14:12:26 cjm Exp $
 */
 
 #include <stdio.h>
@@ -12,7 +12,7 @@
 /**
  * This program tests reading each bit of a word value from a PLC.
  * @author $Author: cjm $
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 /* hash definitions */
@@ -25,7 +25,7 @@
 /**
  * Revision control system identifier.
  */
-static char rcsid[] = "$Id: eip_test_read_bits.c,v 1.2 2009-02-05 11:36:45 cjm Exp $";
+static char rcsid[] = "$Id: eip_test_read_bits.c,v 1.3 2011-01-12 14:12:26 cjm Exp $";
 
 /**
  * The hostname of the PLC.
@@ -78,16 +78,16 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 	/* open interface */
-	if(!EIP_Session_Handle_Create(&handle))
+	if(!EIP_Session_Handle_Create("eip_test_read_bits",NULL,&handle))
 	{
 		EIP_General_Error();
 		return 4;
 	}
 	/* open a session to a Micrologix 1100 backplane 1, slot 0 @ Hostname */
-	if(!EIP_Session_Open(Hostname,1,0,PLC_TYPE_MICROLOGIX1100,handle))
+	if(!EIP_Session_Open("eip_test_read_bits",NULL,Hostname,1,0,PLC_TYPE_MICROLOGIX1100,handle))
 	{
 		EIP_General_Error();
-		EIP_Session_Handle_Destroy(&handle);
+		EIP_Session_Handle_Destroy("eip_test_read_bits",NULL,&handle);
 		return 4;
 	}
 	/* initialise bit values to all zeros. Ensures \0 is in right place. */
@@ -96,10 +96,10 @@ int main(int argc, char *argv[])
 	for(i=0; i<16; i++)
 	{
 		sprintf(address_buff,"%s/%d",PLC_Address,i);
-		if(!EIP_Read_Boolean(handle,address_buff,&value))
+		if(!EIP_Read_Boolean("eip_test_read_bits",NULL,handle,address_buff,&value))
 		{
 			EIP_General_Error();
-			EIP_Session_Handle_Destroy(&handle);
+			EIP_Session_Handle_Destroy("eip_test_read_bits",NULL,&handle);
 			return 4;
 		}
 		fprintf(stdout,"PLC Address %s contained value %d.\n",address_buff,value);
@@ -114,18 +114,18 @@ int main(int argc, char *argv[])
 		else
 		{
 			fprintf(stderr,"Value was not 1 or 0.\n");
-			EIP_Session_Handle_Destroy(&handle);
+			EIP_Session_Handle_Destroy("eip_test_read_bits",NULL,&handle);
 			return 5;
 		}			
 	}/* end for */
 	/* close */
-	if(!EIP_Session_Close(handle))
+	if(!EIP_Session_Close("eip_test_read_bits",NULL,handle))
 	{
 		EIP_General_Error();
-		EIP_Session_Handle_Destroy(&handle);
+		EIP_Session_Handle_Destroy("eip_test_read_bits",NULL,&handle);
 		return 4;
 	}
-	if(!EIP_Session_Handle_Destroy(&handle))
+	if(!EIP_Session_Handle_Destroy("eip_test_read_bits",NULL,&handle))
 	{
 		EIP_General_Error();
 		return 4;
@@ -228,6 +228,9 @@ static void Help(void)
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.2  2009/02/05 11:36:45  cjm
+** Swapped Bitwise for Absolute logging levels.
+**
 ** Revision 1.1  2008/10/15 13:48:34  cjm
 ** Initial revision
 **

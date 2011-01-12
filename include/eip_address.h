@@ -1,5 +1,5 @@
 /* eip_address.h
-** $Header: /home/cjm/cvs/eip/include/eip_address.h,v 1.1 2008-10-15 13:48:28 cjm Exp $
+** $Header: /home/cjm/cvs/eip/include/eip_address.h,v 1.2 2011-01-12 14:11:37 cjm Exp $
 */
 
 #ifndef EIP_ADDRESS_H
@@ -34,10 +34,14 @@ typedef struct EIP_PLC_Memory_Address_Struct
 } EIP_PLC_Memory_Address_T;
 
 /* external functions */
-extern int EIP_Address_Parse(char *straddress,EIP_PLC_Memory_Address_T *address);
-extern int EIP_Address_Create(EIP_PLC_Memory_Address_T address,char *straddress,int include_sub_element);
+extern int EIP_Address_Parse(char *class,char *source,char *straddress,EIP_PLC_Memory_Address_T *address);
+extern int EIP_Address_Create(char *class,char *source,EIP_PLC_Memory_Address_T address,char *straddress,
+			      int include_sub_element);
 
 /*
 ** $Log: not supported by cvs2svn $
+** Revision 1.1  2008/10/15 13:48:28  cjm
+** Initial revision
+**
 */
 #endif
