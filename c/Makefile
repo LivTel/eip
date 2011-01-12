@@ -1,4 +1,4 @@
-# $Header: /home/cjm/cvs/eip/c/Makefile,v 1.2 2009-02-05 11:36:32 cjm Exp $
+# $Header: /home/cjm/cvs/eip/c/Makefile,v 1.3 2011-01-12 14:11:49 cjm Exp $
 
 include			../../Makefile.common
 include			../Makefile.common
@@ -37,7 +37,7 @@ JAVASRCS 	= 	$(SRCS) ngat_eip_EIPPLC.c
 JAVAOBJS	=	$(JAVASRCS:%.c=$(BINDIR)/%.o)
 JAVADOCS 	= 	$(JAVASRCS:%.c=$(DOCSDIR)/%.html)
 
-top: shared docs $(INCDIR)/ngat_eip_EIPPLC.h 
+top: $(INCDIR)/ngat_eip_EIPPLC.h shared docs 
 
 shared: $(LT_LIB_HOME)/lib$(EIP_LIBNAME).so
 
@@ -95,6 +95,9 @@ backup: tidy
 
 #
 # $Log: not supported by cvs2svn $
+# Revision 1.2  2009/02/05 11:36:32  cjm
+# Added log_udp.h include dir.
+#
 # Revision 1.1  2008/10/15 13:48:32  cjm
 # Initial revision
 #
