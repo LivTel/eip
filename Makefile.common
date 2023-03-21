@@ -1,10 +1,19 @@
-# $Header: /home/cjm/cvs/eip/Makefile.common,v 1.1 2009-01-07 17:26:32 cjm Exp $
+# $Header: /home/cjm/cvs/eip/Makefile.common,v 1.2 2023-03-21 17:19:22 cjm Exp $
 
 EIP_HOME		=	eip
 EIP_SRC_HOME		= 	$(LT_SRC_HOME)/$(EIP_HOME)
 EIP_BIN_HOME		= 	$(LT_BIN_HOME)/$(EIP_HOME)
 EIP_DOC_HOME		= 	$(LT_DOC_HOME)/$(EIP_HOME)
 EIP_LIBNAME		=	$(EIP_HOME)
+
+# log_udp library (log_udp.h is included for verbosity settings)
+LOG_UDP_HOME		= log_udp
+LOG_UDP_SRC_HOME	= $(LT_SRC_HOME)/$(LOG_UDP_HOME)
+LOG_UDP_CFLAGS		= -I$(LOG_UDP_SRC_HOME)/include
+
 #
 # $Log: not supported by cvs2svn $
+# Revision 1.1  2009/01/07 17:26:32  cjm
+# Initial revision
+#
 #
