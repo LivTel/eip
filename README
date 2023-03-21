@@ -1,0 +1,9 @@
+TuxEIP wrapper.
+TuxEIP is a PLC comms library that uses CIP/EIP (EtherNet over IP) to talk to
+a Micrologix 1100 PLC (or similar).
+
+See tuxeip-1.0.tar.gz and readtag-1.0.tar.gz in ~dev/src/frodospec/micrologix
+for underlying library, installed in
+/usr/local/lib/libtuxeip.a
+and 
+/usr/local/include/tuxeip/

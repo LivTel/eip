@@ -1,0 +1,59 @@
+libeip currently wraps libtuxeip to communicate with the PLC.
+
+This is downloaded from http://www.tuxplc.net/index.php?page=readtag
+We have tuxeip-1.0.tar.gz and libeip contains code derived from readtag-1.0.tar.gz, which
+shows you how to invoke libtuxeip.
+
+Our copy of the library is currently stored at:
+~dev/src/frodospec/micrologix/tuxeip-1.0
+and
+~dev/src/frodospec/micrologix/readtag-1.0
+
+The default ./configure and compilation works fine for libeip test programs (~dev/bin/eip/test/i386-linux/).
+However, when linking as part of a JNI implementation got ngat.eip.EIPPLC, we get at startup:
+
+
+java ngat.eip.test.IntegerRead
+Logging START--->
+ngat.eip.test.IntegerRead:initLoggers:Setting up logger:ngat.eip.EIPPLC
+
+Exception in thread "main" java.lang.UnsatisfiedLinkError: /home/dev/bin/lib/i386-linux/libeip.so: /home/dev/bin/lib/i386-linux/libeip.so: cannot allocate memory in static TLS block
+        at java.lang.ClassLoader$NativeLibrary.load(Native Method)
+        at java.lang.ClassLoader.loadLibrary0(ClassLoader.java:1586)
+        at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1511)
+        at java.lang.Runtime.loadLibrary0(Runtime.java:788)
+        at java.lang.System.loadLibrary(System.java:834)
+        at ngat.eip.EIPPLC.<clinit>(EIPPLC.java:144)
+        at ngat.eip.test.IntegerRead.run(IntegerRead.java:100)
+
+I believe this may be due to thread local variables defined in ErrCodes.c:
+ErrCodes.c:THREAD_VAR int _cip_debuglevel;
+ErrCodes.c:THREAD_VAR unsigned int _cip_errno;
+ErrCodes.c:THREAD_VAR unsigned int _cip_ext_errno;
+ErrCodes.c:THREAD_VAR Error_type _cip_err_type;
+ErrCodes.c:THREAD_VAR char _cip_err_msg[MAX_ERR_MSG_LEN+1];
+
+THREAD_VAR is defined as follows in ErrCodes.h:
+#ifndef VALGRING /* Define this to use with valgrind */
+	#define THREAD_VAR __thread
+#else
+	#define THREAD_VAR
+#endif
+
+I think I need to recompile libtuxeip with VALGRING defined (so as to remove __thread)
+I guess VALGRING has to be defined for all software including ErrCodes.h for the extern declarations
+in that file to work.
+
+diff of nm -a of libtuxeip with and without VALGRING set.
+< 00000000 B _cip_debuglevel
+< 00000020 B _cip_err_msg
+< 00000004 B _cip_errno
+< 0000000c B _cip_err_type
+< 00000008 B _cip_ext_errno
+---
+> 00000004 C _cip_debuglevel
+> 00000100 C _cip_err_msg
+> 00000004 C _cip_errno
+> 00000004 C _cip_err_type
+> 00000004 C _cip_ext_errno
+

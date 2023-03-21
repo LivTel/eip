@@ -1,0 +1,17 @@
+http://www.plctalk.net/qanda/archive/index.php/t-31442.html
+'ve been playing with the TuxEIP library from http://tuxplc.net and had good luck with it.
+
+Since you're connecting to an SLC 5/05, I'd recommend downloading the DF1 manual from http://literature.rockwellautomation.com. It's publication #1770-6.5.16.
+
+There's a file in the TuxEIP library called plc.c that has most of the details of reads and writes to the SLC 5/05. The author wrote it using block reads which work fine for integers and floats.
+
+Reading bits works well enough, but be careful writing to bits with his library as it only lets you write the entire word, not a specific bit.
+
+Also, his libraries don't provide for reading and writing timer and counter elements. This all comes down to the command he is using for reads and writes. 0Fx67 typed read and 0Fx68 typed write (details in the publication I mentioned above).
+
+Using the commands 0FxA2 Protected Typed Logical Read with three address fields and 0FxAA Protected Typed Logical Write with three address fields would be much more effective for manipulating bits, and seperate elements of counters and timers.
+
+It looks as though the author has begun working on this though because he has a subroutine to format the 'three address field data', but is making no use of it as of yet.
+
+Anyway, it's a GPL program, so as long as your organization is comfortable with viral liscensing, then have at it.
+
